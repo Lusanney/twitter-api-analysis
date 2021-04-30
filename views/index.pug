@@ -1,0 +1,33 @@
+extends layout
+
+block content
+  .alert.alert-danger(role="alert") Please provide hashtag
+  .main-container
+    
+    h1.text-center Welcome to Sentiment Analysis
+    h5.text-center Presented by Blake & Lusanney
+    .container
+      //- Hashtag search
+      .row.my-5
+        
+        label.sr-only(for="hashtagSearchInput") Hashtag
+        .input-group.hashtag-searchbar
+          .input-group-prepend
+            .input-group-text #
+          input.form-control(type="text", id="hashtagSearchInput", placeholder="Hashtag", style={"height": "100%"})
+          button#searchBtn.btn.btn-primary
+            i.fas.fa-search
+    
+block javascript
+  script.
+    $('.alert').hide()
+    //- On Search Button
+    $('#searchBtn').click(() => {
+      //- Get input from search
+      const hashtag = $('#hashtagSearchInput').val();
+      
+      if(hashtag === '')
+        $('.alert').show()
+      else
+        window.location.href = `/sentiment?hashtag=${hashtag}`;
+    })

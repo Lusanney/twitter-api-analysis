@@ -1,0 +1,13 @@
+extends layout
+
+block content
+  .container.text-center
+    h1= title
+    h1= message
+    button#gobackBtn.btn.btn-primary Go back
+
+block javascript
+  script.
+    $('#gobackBtn').click(() => {
+      window.history.back();
+    })

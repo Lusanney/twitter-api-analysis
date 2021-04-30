@@ -1,0 +1,173 @@
+extends layout
+
+block content
+  .alert.alert-danger(role="alert") Please provide hashtag
+  h1.text-center='#' + hashtag
+  
+  .container
+
+    //- Hashtag search
+    .row.my-5
+      label.sr-only(for="hashtagSearchInput") Hashtag
+      .input-group.hashtag-searchbar
+        .input-group-prepend
+          .input-group-text #
+        input.form-control(type="text", id="hashtagSearchInput", placeholder="Hashtag", style={"height": "100%"})
+        button#searchBtn.btn.btn-primary
+          i.fas.fa-search
+    
+    .row
+      //- Chart.js Graph
+      .col
+        div.input-group.mb-3
+          div.input-group-prepend
+            button#snapshotBtn.btn.btn-outline-success(type="button") Get Snapshot
+      
+          select#snapshotInput.custom-select(disabled)
+            option#snapshotDefault(selected) Choose...
+        
+
+        canvas#updownChart(width="400", height="400")
+
+        - 
+          let avgScore = JSON.parse(sentiment).avgScore;
+          avgScore ? avgScore = avgScore.toFixed(5) : avgScore = avgScore;
+          
+          const percent = (avgScore * 1 + 1) * 100 / 2;
+          
+        h4.mt-5 Sentiment Score
+          if percent > 55
+            .progress.mt-3
+              .progress-bar.bg-success.progress-bar-striped.progress-bar-animated(style=`width: ${percent}%;`)=avgScore
+            h6 Positive
+          else if percent < 45
+            .progress.mt-3
+              .progress-bar.bg-danger.progress-bar-striped.progress-bar-animated(style=`width: ${percent}%;`)=avgScore
+            h6 Negative
+          else
+            .progress.mt-3
+              .progress-bar.bg-warning.progress-bar-striped.progress-bar-animated(style=`width: ${percent}%;`)=avgScore
+            h6 Neutral
+      //- Recent tweets
+      .col 
+        h3.text-center.mb-3 Top 5 Recent popular Tweets
+        //- twitter posts
+        - const top5tweets = JSON.parse(sentiment).top5tweets
+        each tweet in top5tweets
+          .tweet-container
+            if tweet.sentimentScore > 0
+              .tweet-sentiment.positive
+                strong Positive
+            else if tweet.sentimentScore < 0
+              .tweet-sentiment.negative
+                strong Negative
+            else
+              .tweet-sentiment.neutral
+                strong Neutral
+            .tweet-profile
+              .tweet-img
+                img(src=tweet.user.profile_image_url_https, alt="No img")
+              .tweet-name
+                strong=tweet.user.name
+                .tweet-username='@' + tweet.user.screen_name
+            .tweet-body.mt-3
+              .tweet-text.text-justify
+                if tweet.full_text.length < 120
+                  p=tweet.full_text
+                else
+                  p=tweet.full_text.substring(0,120) + "..."
+            .tweet-footer
+              .tweet-count
+                i.far.fa-heart
+                p=tweet.favorite_count
+              .tweet-count
+                i.far.fa-share-square
+                p=tweet.retweet_count
+
+              .tweet-goto
+                a(href=`https://twitter.com/${tweet.user.screen_name}/status/${tweet.id_str}`,target="_blank", rel="noopener noreferrer") click here
+
+block javascript
+  //- Chart visualization
+  script.
+    const ctx = $("#updownChart");
+
+    let sentiment = !{sentiment};
+
+    const data = {
+      labels: ["Positive", "Neutral", "Negative"],
+      datasets: [
+        {
+          label: "Tweets Sentiment into Groups",
+          backgroundColor: ["#355c7d", "#F67280", "#F8B195"],
+          data: [
+            sentiment.count.positiveCount, 
+            sentiment.count.neutralCount, 
+            sentiment.count.negativeCount
+            ]
+        }
+      ]
+    }
+
+    var myBarChart = new Chart(ctx, {
+      type: 'bar',
+      data: data
+    });
+
+  //- Search button click Script
+  script.
+    $('.alert').hide()
+    //- On Search Button
+    $('#searchBtn').click(() => {
+      //- Get input from search
+      const hashtag = $('#hashtagSearchInput').val();
+      
+      if(hashtag === '')
+        $('.alert').show()
+      else
+        window.location.href = `/sentiment?hashtag=${hashtag}`;
+    })
+
+  //- Get snapshot script
+  script.
+    $('#snapshotBtn').click(async () => {
+      //AJAX call to server
+      const hashtag = "#{hashtag}";
+      const snapshotSelect = $('#snapshotInput');
+      const snapshotDefault = $('#snapshotDefault');
+      try{
+        const response = await fetch(`/api/v1/snapshot?hashtag=${hashtag}`);
+        console.log(response);
+        let data = await response.json();
+        
+        // Filtering the current timestamp
+        const currentSearchTimestamp = !{sentiment}.timestamp;
+        
+        data = data.filter(value => value.timestamp !== currentSearchTimestamp);
+        console.log(data);
+        if(data.length === 0)
+          // If there is no snapshot
+          snapshotDefault.text('No snapshot available');
+        else {
+          snapshotSelect
+          .empty()
+          .append(snapshotDefault)
+          .append(
+            data.map(value => new Option((new Date(value.timestamp)).toLocaleString(), value.timestamp))
+          );
+
+          snapshotSelect.prop('disabled', false);
+        }
+        
+      }catch (err){
+        console.log(err);
+      }
+      
+    })
+
+  //- Choosing snapshot script
+  script.
+    $('#snapshotInput').on('change', function() {
+      const hashtag = "#{hashtag}";
+      window.location.href = `/sentiment?hashtag=${hashtag}&timestamp=${this.value}`;
+    });

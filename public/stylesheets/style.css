@@ -1,0 +1,92 @@
+body {
+  padding: 50px;
+  font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
+}
+
+a {
+  color: #00B7FF;
+}
+.main-container{
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translateX(-50%) translateY(-50%);
+}
+
+.hashtag-searchbar{
+  max-width: 400px !important;
+  height: 50px;
+
+  margin: 0 auto;
+}
+
+#hashtagSearchInput{
+  border-top-right-radius: 0.25rem;
+  border-bottom-right-radius: 0.25rem;
+}
+
+.hashtag-searchbar button{
+  transform: scale(0.7) translateX(-160%);
+  z-index: 5;
+}
+
+.tweet-container {
+  position: relative;
+
+  padding: 20px;
+  margin-bottom: 30px;
+  /* sizing */
+  width: 500px;
+  border-radius: 10px;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+
+  /* Animation */
+  transition: all  0.3s ease-in-out;
+}
+
+.tweet-container:hover{
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+  transform: scale(1.05, 1.05);
+}
+
+.tweet-footer{
+  display: flex;
+  flex-direction: row;
+  gap: 50px;
+}
+
+.tweet-profile{
+  display: flex;
+  flex-direction: row;
+  gap: 20px;
+}
+
+.tweet-count{
+  display: flex;
+  flex-direction: row;
+  gap: 10px;
+}
+
+.tweet-sentiment{
+  position: absolute;
+  top: 0%;
+  left: 100%;
+  transform: translateX(-120%) translateY(50%);
+  padding: 5px 10px;
+  border-radius: 5px;
+}
+
+.positive{
+  background-color: #7BE495;
+  color: rgb(25, 26, 44);
+}
+
+.negative{
+  background-color: #E06C78;
+  color: rgb(25, 26, 44);
+}
+
+.neutral{
+  background-color: #FFBE88;
+  color: rgb(25, 26, 44);
+}
